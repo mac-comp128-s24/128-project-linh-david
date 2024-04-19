@@ -9,22 +9,21 @@ import java.util.Deque;
 import java.util.Iterator;
 
 /**
- * Created by bjackson on 3/2/2016.
+ * A simple game of Tower of Hanoi
  */
 public class TowerOfHanoi {
 
     public static final int NUM_TOWERS = 3;
     public static final int NUM_DISKS = 5;
-    public static final double DISK_WIDTH_STARTING = 75;
+    public static final double DISK_WIDTH_STARTING = 50;
     public static final double DISK_WIDTH_FINAL = 200;
     public static final double DISK_WIDTH_INCREMENT = (DISK_WIDTH_FINAL - DISK_WIDTH_STARTING) / NUM_DISKS;
     public static final double DISK_HEIGHT = 20;
-    public static final double DISK_X = 20;
     public static final double TOWER_WIDTH = 10;
     public static final double TOWER_Y = 150;
     public static final double TOWER_HEIGHT = DISK_HEIGHT * (NUM_DISKS + 1);
     public static final double DISK_Y_STARTING = TOWER_Y + TOWER_HEIGHT - DISK_HEIGHT;
-    public static final double TOWER_X_STARTING = 20 + DISK_WIDTH_STARTING + NUM_TOWERS * DISK_WIDTH_INCREMENT;
+    public static final double TOWER_X_STARTING = DISK_WIDTH_FINAL;
     public static final double DISTANCEBETWEEN = 10;
     public static final String TITLE_TEXT = "Tower of Hanoi";
 
@@ -39,7 +38,7 @@ public class TowerOfHanoi {
      */
     public TowerOfHanoi() {
         canvas = new CanvasWindow("Tower of Hanoi", 1000, 375);
-        label = new GraphicsText(TITLE_TEXT, (float) DISK_X, 50.0f);
+        label = new GraphicsText(TITLE_TEXT, (float) 20.0f, 50.0f);
         label.setFont(FontStyle.PLAIN, 24);
         canvas.add(label);
 
@@ -52,14 +51,15 @@ public class TowerOfHanoi {
         createTowers();
         createDisks();
         canvas.onMouseDown(this::mousePressed);
-        canvas.onMouseUp(this::mouseReleased);
     }
 
+    /**
+     * Create the towers
+     */
     private void createTowers() {
         for (int i = 0; i < NUM_TOWERS; i++) {
             Rectangle tower = new Rectangle(
-                (TOWER_X_STARTING
-                    + i * ((DISK_WIDTH_STARTING + NUM_TOWERS * DISK_WIDTH_INCREMENT * 2) + DISTANCEBETWEEN)),
+                (TOWER_X_STARTING + i * (DISK_WIDTH_FINAL + DISTANCEBETWEEN)),
                 TOWER_Y, TOWER_WIDTH, TOWER_HEIGHT);
             tower.setFillColor(Color.DARK_GRAY);
             tower.setFilled(true);
@@ -68,12 +68,15 @@ public class TowerOfHanoi {
         }
     }
 
+    /**
+     * Create the disks
+     */
     public void createDisks() {
         for (int i = 0; i < NUM_DISKS; i++) {
+            double DISK_WIDTH = DISK_WIDTH_FINAL - i * DISK_WIDTH_INCREMENT;
             Rectangle disk = new Rectangle(
-                (towers_X[0] - (DISK_WIDTH_STARTING + (NUM_TOWERS - i) * DISK_WIDTH_INCREMENT) / 2),
-                (DISK_Y_STARTING - i * DISK_HEIGHT), (DISK_WIDTH_STARTING + (NUM_TOWERS - i) * DISK_WIDTH_INCREMENT),
-                DISK_HEIGHT);
+                (towers_X[0] - DISK_WIDTH / 2),
+                (DISK_Y_STARTING - i * DISK_HEIGHT), DISK_WIDTH, DISK_HEIGHT);
             disk.setFillColor(Color.CYAN);
             disk.setFilled(true);
             canvas.add(disk);
@@ -81,6 +84,11 @@ public class TowerOfHanoi {
         }
     }
 
+    /**
+     * Select a disk and hold it
+     * 
+     * @param tower
+     */
     public void selectDisk(int tower) {
         if (!towers.get(tower).isEmpty()) {
             Rectangle disk = towers.get(tower).pop();
@@ -89,6 +97,11 @@ public class TowerOfHanoi {
         }
     }
 
+    /**
+     * Place the disk being selected/held
+     * 
+     * @param tower
+     */
     public void placeDisk(int tower) {
         System.out.println("Placing disk");
         if (towers.get(tower).isEmpty() || towers.get(tower).peekFirst().getWidth() > selectedDisk.getWidth()) {
@@ -100,6 +113,11 @@ public class TowerOfHanoi {
         }
     }
 
+    /**
+     * Check if the game is won
+     * 
+     * @return
+     */
     private boolean checkForWin() {
         return towers.get(0).isEmpty() && towers.get(1).isEmpty() || towers.get(0).isEmpty() && towers.get(2).isEmpty();
     }
@@ -148,14 +166,6 @@ public class TowerOfHanoi {
             }
         }
 
-    }
-
-    /**
-     * Responds to mouse button released events
-     * 
-     * @param event
-     */
-    public void mouseReleased(MouseButtonEvent event) {
     }
 
     public static void main(String[] args) {
