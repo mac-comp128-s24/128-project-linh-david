@@ -9,7 +9,11 @@ import java.util.Deque;
 import java.util.Iterator;
 
 /**
+<<<<<<< Updated upstream
  * A simple game of Tower of Hanoi
+=======
+ * Created by David Trinh 04/15/24
+>>>>>>> Stashed changes
  */
 public class TowerOfHanoi {
 
