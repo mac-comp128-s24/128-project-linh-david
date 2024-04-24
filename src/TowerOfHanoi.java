@@ -9,11 +9,7 @@ import java.util.Deque;
 import java.util.Iterator;
 
 /**
-<<<<<<< Updated upstream
  * A simple game of Tower of Hanoi
-=======
- * Created by David Trinh 04/15/24
->>>>>>> Stashed changes
  */
 public class TowerOfHanoi {
 
@@ -34,6 +30,8 @@ public class TowerOfHanoi {
 
     private CanvasWindow canvas;
     private GraphicsText label;
+    private boolean isRunning;
+    private Timer timer;
     private int move_counter;
     private GraphicsText counter;
     private ArrayList<Deque<Rectangle>> towers;
@@ -45,9 +43,23 @@ public class TowerOfHanoi {
      */
     public TowerOfHanoi() {
         canvas = new CanvasWindow("Tower of Hanoi", 1000, 375);
+
+        reset();
+        timer = new Timer(canvas, 500, 50, 10);
+        timer.run();
+        canvas.animate(() -> { timer.update(); });
+    }
+
+    /**
+     * Reset the game
+     */
+    public void reset() {
+        canvas.removeAll();
         label = new GraphicsText(TITLE_TEXT, (float) 20.0f, 50.0f);
         label.setFont(FontStyle.PLAIN, 24);
         canvas.add(label);
+
+        isRunning = false;
 
         move_counter = 0;
         counter = new GraphicsText("Moves: " + move_counter, 20.0f, 100.0f);
@@ -95,6 +107,29 @@ public class TowerOfHanoi {
             towers.get(0).push(disk);
         }
     }
+
+    /**
+     * Start the game
+     */
+    public void startGame() {
+        if (isRunning) {
+            return;
+        }
+
+        isRunning = true;
+        timer.setActive(true);
+        timer.update();
+    }
+
+    public void stopGame() {
+        if (!isRunning) {
+            return;
+        }
+
+        isRunning = false;
+        timer.reset();
+    }
+
 
     /**
      * Select a disk and hold it
@@ -156,6 +191,8 @@ public class TowerOfHanoi {
                 return;
             }
 
+            startGame();
+
             Rectangle disk = (Rectangle) canvas.getElementAt(event.getPosition());
             if (disk.equals(towers.get(0).peekFirst())) {
                 selectDisk(0);
@@ -190,6 +227,7 @@ public class TowerOfHanoi {
 
             if (checkForWin()) {
                 label.setText("You win!");
+                isRunning = false;
             }
         }
 
