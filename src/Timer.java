@@ -63,7 +63,7 @@ public class Timer {
     public void update() {
         if (isActive) {
             long timePassed = System.currentTimeMillis() - startTime;
-            long secondsDisplay = maxTime - timePassed / 10;
+            long secondsDisplay = maxTime - timePassed / 1000;
             secondsPrint.setText(secondsDisplay < 10 ? (formattedTime + "0" + String.valueOf(secondsDisplay))
                 : (formattedTime + String.valueOf(secondsDisplay)));
             secondsPrint.setCenter(x, y);

@@ -47,7 +47,8 @@ public class TowerOfHanoi {
         reset();
         timer = new Timer(canvas, 500, 50, 10);
         timer.run();
-        canvas.animate(() -> { timer.update(); });
+        timer.startTimer();
+        canvas.animate(() -> {timer.update();});
     }
 
     /**
