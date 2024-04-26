@@ -16,7 +16,6 @@ public class Timer {
      * 
      * @param maxTime the number of seconds to countdown from
      */
-
     public Timer(CanvasWindow canvas, double x, double y, int maxTime) {
         this.canvas = canvas;
         this.x = x;
@@ -44,7 +43,6 @@ public class Timer {
     /**
      * Resets the timer, including its internal time keeping and the visual onscreen
      */
-
     public void reset() {
         secondsPrint.setText("You've got " + maxTime + " seconds");
         secondsPrint.setCenter(x, y);
@@ -59,7 +57,6 @@ public class Timer {
      * Visually shows the timer running by constantly checking the internal time, updating the graphics
      * only once a second has passed, stopping when the timer has finished counting down
      */
-
     public void update() {
         if (isActive) {
             long timePassed = System.currentTimeMillis() - startTime;
@@ -74,10 +71,9 @@ public class Timer {
         }
     }
 
-    public boolean isOut() {
-        return isOut;
-    }
-
+    /**
+     * @return whether the timer has started
+     */
     public void setActive(boolean isActive) {
         this.isActive = isActive;
     }
@@ -87,5 +83,12 @@ public class Timer {
      */
     public void run() {
         canvas.add(secondsPrint);
+    }
+
+    /**
+     * Removing the timer from the canvas
+     */
+    public void remove() {
+        canvas.remove(secondsPrint);
     }
 }
