@@ -13,20 +13,20 @@ import java.util.Iterator;
  */
 public class TowerOfHanoi {
 
-    public static final int NUM_TOWERS = 3;
-    public static final int NUM_DISKS = 3;
-    public static final double DISK_WIDTH_STARTING = 50;
-    public static final double DISK_WIDTH_FINAL = 200;
-    public static final double DISK_WIDTH_INCREMENT = (DISK_WIDTH_FINAL - DISK_WIDTH_STARTING) / NUM_DISKS;
-    public static final double DISK_HEIGHT = 20;
-    public static final double TOWER_WIDTH = 10;
-    public static final double TOWER_Y = 150;
-    public static final double TOWER_BASE_LENGTH = 50;
-    public static final double TOWER_HEIGHT = DISK_HEIGHT * (NUM_DISKS + 1);
-    public static final double DISK_Y_STARTING = TOWER_Y + TOWER_HEIGHT - DISK_HEIGHT;
-    public static final double TOWER_X_STARTING = DISK_WIDTH_FINAL;
-    public static final double DISTANCEBETWEEN = 100;
-    public static final String TITLE_TEXT = "Tower of Hanoi";
+    private static final int NUM_TOWERS = 3;
+    private static final int NUM_DISKS = 3;
+    private static final double DISK_WIDTH_STARTING = 50;
+    private static final double DISK_WIDTH_FINAL = 200;
+    private static final double DISK_WIDTH_INCREMENT = (DISK_WIDTH_FINAL - DISK_WIDTH_STARTING) / NUM_DISKS;
+    private static final double DISK_HEIGHT = 20;
+    private static final double TOWER_WIDTH = 10;
+    private static final double TOWER_Y = 150;
+    private static final double TOWER_HEIGHT = DISK_HEIGHT * (NUM_DISKS + 1);
+    private static final double DISK_Y_STARTING = TOWER_Y + TOWER_HEIGHT - DISK_HEIGHT;
+    private static final double TOWER_X_STARTING = DISK_WIDTH_FINAL;
+    private static final double DISTANCEBETWEEN = 100;
+    private static final int ANIMATION_DURATION = 10; // 1/60 of a second
+    private static final String TITLE_TEXT = "Tower of Hanoi";
 
     private CanvasWindow canvas;
     private GraphicsText label;
@@ -34,6 +34,7 @@ public class TowerOfHanoi {
     private Timer timer;
     private int move_counter;
     private GraphicsText counter;
+    private int step;
     private ArrayList<Deque<Rectangle>> towers;
     private double[] towers_X;
     private Rectangle selectedDisk;
@@ -43,12 +44,7 @@ public class TowerOfHanoi {
      */
     public TowerOfHanoi() {
         canvas = new CanvasWindow("Tower of Hanoi", 1000, 375);
-
         reset();
-        timer = new Timer(canvas, 500, 50, 10);
-        timer.run();
-        timer.startTimer();
-        canvas.animate(() -> {timer.update();});
     }
 
     /**
@@ -61,6 +57,9 @@ public class TowerOfHanoi {
         canvas.add(label);
 
         isRunning = false;
+
+        timer = new Timer(canvas, 500, 50, 100);
+        timer.run();
 
         move_counter = 0;
         counter = new GraphicsText("Moves: " + move_counter, 20.0f, 100.0f);
@@ -118,8 +117,8 @@ public class TowerOfHanoi {
         }
 
         isRunning = true;
-        timer.setActive(true);
-        timer.update();
+        timer.startTimer();
+        canvas.animate(() -> { timer.update(); });
     }
 
     public void stopGame() {
@@ -131,6 +130,30 @@ public class TowerOfHanoi {
         timer.reset();
     }
 
+    /**
+     * Increment the move counter
+     */
+    public void incrementCounter() {
+        move_counter++;
+        counter.setText("Moves: " + move_counter);
+    }
+
+    public void moveDisk(Rectangle disk, double x_end, double y_end) {
+        step = 1;
+        double x_start = disk.getCenter().getX();
+        double y_start = disk.getCenter().getY();
+        double x_step = (x_end - x_start) / ANIMATION_DURATION;
+        double y_step = (y_end - y_start) / ANIMATION_DURATION;
+
+        canvas.animate(() -> {
+            if (step <= ANIMATION_DURATION) {
+                double x = x_start + x_step * step;
+                double y = y_start + y_step * step;
+                disk.setCenter(x, y);
+                step++;
+            }
+        });
+    }
 
     /**
      * Select a disk and hold it
@@ -151,22 +174,14 @@ public class TowerOfHanoi {
      * @param tower
      */
     public void placeDisk(int tower) {
-        System.out.println("Placing disk");
         if (towers.get(tower).isEmpty() || towers.get(tower).peekFirst().getWidth() > selectedDisk.getWidth()) {
             selectedDisk.setFillColor(Color.CYAN);
-            selectedDisk.setPosition(towers_X[tower] - selectedDisk.getWidth() / 2,
-                TOWER_Y + TOWER_HEIGHT - DISK_HEIGHT * (towers.get(tower).size() + 1));
+            selectedDisk.setCenter(towers_X[tower],
+                TOWER_Y + TOWER_HEIGHT - DISK_HEIGHT * (towers.get(tower).size() + 1) + DISK_HEIGHT / 2);
             towers.get(tower).push(selectedDisk);
             selectedDisk = null;
+            incrementCounter();
         }
-    }
-
-    /**
-     * Increment the move counter
-     */
-    public void incrementCounter() {
-        move_counter++;
-        counter.setText("Moves: " + move_counter);
     }
 
     /**
@@ -185,8 +200,8 @@ public class TowerOfHanoi {
      * @param event
      */
     public void mousePressed(MouseButtonEvent event) {
-        System.out.println("Mouse pressed at " + event.getPosition());
-        System.out.println("Selected disk: " + selectedDisk);
+        solve(NUM_DISKS, 0, 2, 1);
+        stopGame();
         if (selectedDisk == null) {
             if (!(canvas.getElementAt(event.getPosition()) instanceof Rectangle)) {
                 return;
@@ -212,26 +227,34 @@ public class TowerOfHanoi {
             double middle_bound2 = towers_X[1] + DISK_WIDTH_FINAL / 2;
 
             if (x > left_bound && x < middle_bound1) {
-                System.out.println("Placing disk to tower 0");
                 placeDisk(0);
             } else if (x > middle_bound1 && x < middle_bound2) {
-                System.out.println("Placing disk to tower 1");
                 placeDisk(1);
             } else if (x > middle_bound2 && x < right_bound) {
-                System.out.println("Placing disk to tower 2");
                 placeDisk(2);
             } else {
                 return;
             }
 
-            incrementCounter();
-
             if (checkForWin()) {
                 label.setText("You win!");
-                isRunning = false;
+                stopGame();
             }
         }
 
+    }
+
+    /**
+     * Solve the game
+     */
+    public void solve(int n, int start, int end, int aux) {
+        if (n == 0) {
+            return;
+        }
+        solve(n - 1, start, aux, end);
+        selectDisk(start);
+        placeDisk(end);
+        solve(n - 1, aux, end, start);
     }
 
     public static void main(String[] args) {
