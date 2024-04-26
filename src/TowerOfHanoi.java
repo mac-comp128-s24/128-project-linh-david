@@ -14,7 +14,7 @@ import java.util.Iterator;
 public class TowerOfHanoi {
 
     private static final int NUM_TOWERS = 3;
-    private static final int NUM_DISKS = 3;
+    private static final int NUM_DISKS = 7;
     private static final double DISK_WIDTH_STARTING = 50;
     private static final double DISK_WIDTH_FINAL = 200;
     private static final double DISK_WIDTH_INCREMENT = (DISK_WIDTH_FINAL - DISK_WIDTH_STARTING) / NUM_DISKS;
@@ -63,6 +63,11 @@ public class TowerOfHanoi {
         solveButton = new edu.macalester.graphics.ui.Button("Solve");
         solveButton.setCenter(500, 100);
         canvas.add(solveButton);
+        solveButton.onClick(() -> {
+            reset();
+            solve(NUM_DISKS, 0, 2, 1);
+            stopGame();
+        });
 
         animations = new ArrayList<Animation>();
 
@@ -82,7 +87,11 @@ public class TowerOfHanoi {
                 anim.run();
                 if (anim.isDone()) {
                     iter.remove();
+                    if (iter.hasNext()) {
+                        iter.next().update();
+                    }
                 }
+                break;
             }
         });
     }
@@ -91,8 +100,21 @@ public class TowerOfHanoi {
      * Reset the game
      */
     public void reset() {
-        canvas.removeAll();
-        TowerOfHanoi game = new TowerOfHanoi();
+        isRunning = false;
+
+        timer.reset();
+
+        for (Deque<Rectangle> tower : towers) {
+            for (Rectangle disk : tower) {
+                canvas.remove(disk);
+            }
+            tower.clear();
+        }
+
+        animations = new ArrayList<Animation>();
+        selectedDisk = null;
+        createDisks();
+        move_counter = 0;
     }
 
     /**
@@ -134,6 +156,7 @@ public class TowerOfHanoi {
             return;
         }
 
+        reset();
         isRunning = true;
         timer.startTimer();
         canvas.animate(() -> { timer.update(); });
@@ -156,12 +179,8 @@ public class TowerOfHanoi {
         counter.setText("Moves: " + move_counter);
     }
 
-    public void moveDisk(Rectangle disk, double x_end, double y_end) {
-        double start_x = disk.getCenter().getX();
-        double start_y = disk.getCenter().getY();
-        double step_x = (x_end - start_x) / ANIMATION_DURATION;
-        double step_y = (y_end - start_y) / ANIMATION_DURATION;
-        animations.add(new Animation(disk, x_end, y_end, step_x, step_y));
+    public void moveDisk(Rectangle disk, double end_x, double end_y) {
+        animations.add(new Animation(disk, end_x, end_y, ANIMATION_DURATION));
     }
 
     /**
@@ -185,10 +204,9 @@ public class TowerOfHanoi {
     public void placeDisk(int tower) {
         if (towers.get(tower).isEmpty() || towers.get(tower).peekFirst().getWidth() > selectedDisk.getWidth()) {
             selectedDisk.setFillColor(Color.CYAN);
+            System.out.println(selectedDisk);
             moveDisk(selectedDisk, towers_X[tower],
                 TOWER_Y + TOWER_HEIGHT - DISK_HEIGHT * towers.get(tower).size() - DISK_HEIGHT / 2);
-            // selectedDisk.setCenter(towers_X[tower],
-            // TOWER_Y + TOWER_HEIGHT - DISK_HEIGHT * (towers.get(tower).size() + 1) + DISK_HEIGHT / 2);
             towers.get(tower).push(selectedDisk);
             selectedDisk = null;
             incrementCounter();
@@ -212,11 +230,6 @@ public class TowerOfHanoi {
      */
     public void mousePressed(MouseButtonEvent event) {
         System.out.println(canvas.getElementAt(event.getPosition()));
-        // if (canvas.getElementAt(event.getPosition()) == solveButton) {
-        // solve(NUM_DISKS, 0, 2, 1);
-        // stopGame();
-        // return;
-        // }
         if (selectedDisk == null) {
             if (!(canvas.getElementAt(event.getPosition()) instanceof Rectangle)) {
                 return;

@@ -44,6 +44,7 @@ public class Timer {
      * Resets the timer, including its internal time keeping and the visual onscreen
      */
     public void reset() {
+        canvas.remove(secondsPrint);
         secondsPrint.setText("You've got " + maxTime + " seconds");
         secondsPrint.setCenter(x, y);
         canvas.add(secondsPrint);
