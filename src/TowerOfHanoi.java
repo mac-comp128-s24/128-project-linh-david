@@ -6,7 +6,6 @@ import java.awt.*;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.Iterator;
 
 /**
  * A simple game of Tower of Hanoi
@@ -35,7 +34,7 @@ public class TowerOfHanoi {
     private int move_counter;
     private GraphicsText counter;
     private edu.macalester.graphics.ui.Button solveButton;
-    private ArrayList<Animation> animations;
+    private Deque<Animation> animations;
     private ArrayList<Deque<Rectangle>> towers;
     private double[] towers_X;
     private Rectangle selectedDisk;
@@ -68,7 +67,7 @@ public class TowerOfHanoi {
             stopGame();
         });
 
-        animations = new ArrayList<Animation>();
+        animations = new ArrayDeque<Animation>();
 
         towers = new ArrayList<Deque<Rectangle>>();
         for (int i = 0; i < NUM_TOWERS; i++) {
@@ -80,14 +79,13 @@ public class TowerOfHanoi {
         createDisks();
         canvas.onMouseDown(this::mousePressed);
         canvas.animate(() -> {
-            Iterator<Animation> iter = animations.iterator();
-            while (iter.hasNext()) {
-                Animation anim = iter.next();
+            while (!animations.isEmpty()) {
+                Animation anim = animations.peek();
                 anim.run();
                 if (anim.isDone()) {
-                    iter.remove();
-                    if (iter.hasNext()) {
-                        iter.next().update();
+                    animations.poll();
+                    if (!animations.isEmpty()) {
+                        animations.peek().update();
                     }
                 }
                 break;
@@ -110,7 +108,7 @@ public class TowerOfHanoi {
             tower.clear();
         }
 
-        animations = new ArrayList<Animation>();
+        animations = new ArrayDeque<Animation>();
         selectedDisk = null;
         createDisks();
         move_counter = 0;
