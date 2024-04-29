@@ -36,7 +36,6 @@ public class TowerOfHanoi {
     private GraphicsText counter;
     private edu.macalester.graphics.ui.Button solveButton;
     private ArrayList<Animation> animations;
-    private int step;
     private ArrayList<Deque<Rectangle>> towers;
     private double[] towers_X;
     private Rectangle selectedDisk;
@@ -61,7 +60,7 @@ public class TowerOfHanoi {
         canvas.add(counter);
 
         solveButton = new edu.macalester.graphics.ui.Button("Solve");
-        solveButton.setCenter(500, 100);
+        solveButton.setCenter(500, 80);
         canvas.add(solveButton);
         solveButton.onClick(() -> {
             reset();
@@ -205,7 +204,6 @@ public class TowerOfHanoi {
     public void placeDisk(int tower) {
         if (towers.get(tower).isEmpty() || towers.get(tower).peekFirst().getWidth() > selectedDisk.getWidth()) {
             selectedDisk.setFillColor(Color.CYAN);
-            System.out.println(selectedDisk);
             moveDisk(selectedDisk, towers_X[tower],
                 TOWER_Y + TOWER_HEIGHT - DISK_HEIGHT * towers.get(tower).size() - DISK_HEIGHT / 2);
             towers.get(tower).push(selectedDisk);
@@ -230,7 +228,6 @@ public class TowerOfHanoi {
      * @param event
      */
     public void mousePressed(MouseButtonEvent event) {
-        System.out.println(canvas.getElementAt(event.getPosition()));
         if (selectedDisk == null) {
             if (!(canvas.getElementAt(event.getPosition()) instanceof Rectangle)) {
                 return;
