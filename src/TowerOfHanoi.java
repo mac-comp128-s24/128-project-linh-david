@@ -14,7 +14,7 @@ import java.util.Iterator;
 public class TowerOfHanoi {
 
     private static final int NUM_TOWERS = 3;
-    private static final int NUM_DISKS = 7;
+    private static final int NUM_DISKS = 3;
     private static final double DISK_WIDTH_STARTING = 50;
     private static final double DISK_WIDTH_FINAL = 200;
     private static final double DISK_WIDTH_INCREMENT = (DISK_WIDTH_FINAL - DISK_WIDTH_STARTING) / NUM_DISKS;
@@ -52,11 +52,11 @@ public class TowerOfHanoi {
 
         isRunning = false;
 
-        timer = new Timer(canvas, 500, 50, 10);
+        timer = new Timer(canvas, 500, 38, 10);
         timer.run();
 
         move_counter = 0;
-        counter = new GraphicsText("Moves: " + move_counter, 20.0f, 100.0f);
+        counter = new GraphicsText("Moves: " + move_counter, canvas.getWidth() - 150, 50.0f);
         counter.setFont(FontStyle.PLAIN, 24);
         canvas.add(counter);
 
@@ -158,6 +158,7 @@ public class TowerOfHanoi {
 
         reset();
         isRunning = true;
+        label.setText(TITLE_TEXT);
         timer.startTimer();
         canvas.animate(() -> { timer.update(); });
     }
