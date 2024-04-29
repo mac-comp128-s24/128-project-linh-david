@@ -14,6 +14,7 @@ public class TowerOfHanoi {
 
     private static final int NUM_TOWERS = 3;
     private static final int NUM_DISKS = 3;
+    private static final int MAX_TIME = 10;
     private static final double DISK_WIDTH_STARTING = 50;
     private static final double DISK_WIDTH_FINAL = 200;
     private static final double DISK_WIDTH_INCREMENT = (DISK_WIDTH_FINAL - DISK_WIDTH_STARTING) / NUM_DISKS;
@@ -50,7 +51,7 @@ public class TowerOfHanoi {
 
         isRunning = false;
 
-        timer = new Timer(canvas, 500, 38, 10);
+        timer = new Timer(canvas, 500, 38, MAX_TIME);
         timer.run();
 
         move_counter = 0;
